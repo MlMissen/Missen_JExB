@@ -12,6 +12,7 @@ library(lme4)
 library(rcompanion)
 library(MuMIn)
 
+
 #TasFACE2 SWC
 
 SWC.freq <- read.csv("soil_water_content.csv", na.strings ="na")
@@ -22,7 +23,6 @@ SWC.freq$Ring<- factor(SWC.freq$Ring)
 SWC.freq$Plot_ID<- factor(SWC.freq$Plot_ID)
 SWC.freq$Water <- factor(SWC.freq$Water, levels=c("3 days","5 days", "10 days"))
 SWC.freq$Date <- as.Date(SWC.freq$Date , format = "%d/%m/%Y", tz = "Australia/Tasmania")
-
 
 # Calculate SWC cycle means
 SWC.ALL.CYCLE.MEAN <- SWC.freq %>%
@@ -39,7 +39,6 @@ SWC.ALL.CYCLE.MEAN <- SWC.ALL.CYCLE.MEAN %>%
 SWC.ALL.CYCLE.MM <- SWC.ALL.CYCLE.MEAN %>%
   group_by(Plot_ID, Month, Ring, CO2, Water) %>%
   dplyr::summarise(SWC.MM= mean(SWC.CYCLE))
-
 
 exclude_months <- c('Apr-21', 'May-21', 'Jun-21', 'Jul-21', 'Aug-21')
 SWC.ALL.CYCLE.MM <- SWC.ALL.CYCLE.MM[!SWC.ALL.CYCLE.MM$Month %in% exclude_months, ]
@@ -75,7 +74,6 @@ SWC.NORMAL.ALL <-merge(x = SWC.ALL.CYCLE.MEAN, y = SWC.NORMAL, by = c("Plot_ID")
 SWC.NORMAL.ALL.1 <- SWC.NORMAL.ALL%>%
   mutate(NORMALISED.SWC=SWC.CYCLE/SWC.PRETREATMENT.AVERAGE)
 
-
 SWC.NORMAL.ALL.MM <- SWC.NORMAL.ALL.1 %>%
   group_by(Plot_ID, Month, CO2, Water, Ring) %>%
   dplyr::summarize(NORMALISED.SWC.MM= mean(NORMALISED.SWC))
@@ -91,7 +89,6 @@ boxcox(SWC.NORMAL.MM.m, lambda = seq(2,5, length=10)) #^4 transform
 
 SWC.NORMALISED.MM.lme1 <- lmer(NORMALISED.SWC.MM^4.5~CO2*Water*Month + (1|Ring/Plot_ID), SWC.NORMAL.ALL.MM)
 Anova(SWC.NORMALISED.MM.lme1, test.statistic = "F") 
-
 
 
 ######################################################################
@@ -116,7 +113,6 @@ boxcox(CV.m, lambda = seq(0,1.5, length=10)) #log transform
 CV.lme <- lmer(log(CV)~CO2*Water*Month + (1|Ring/Plot_ID), SWC.freq.CV)
 Anova(CV.lme, test.statistic = "F")
 
-
 ######################################################################
 
 ####  mean amplitude of change in SWC
@@ -137,7 +133,6 @@ SWC.freq.MAX.MIN.Percent <- SWC.freq.MAX.MIN.CHANGE %>%
 
 exclude_months <- c('Apr-21', 'May-21', 'Jun-21', 'Jul-21', 'Aug-21')
 subsetted_df <- SWC.freq.MAX.MIN.Percent[!SWC.freq.MAX.MIN.Percent$Month %in% exclude_months, ]
-
 
 # plot boxcox for amplitude of change of SWC and transform as necessary
 
@@ -176,7 +171,6 @@ boxcox(GE.m, lambda = seq(0,1.5, length=10)) #sqrt transform
 GE.lme1 <- lmer(Anet~CO2*Month*Water + VpdL+(1|Ring/Plot_ID), GE)
 Anova(GE.lme1, test.statistic = "F")
 summary(GE.lme1)
-
 
 # pairwise analysis - CO2 x Water
 emm.photo <- emmeans(GE.lme1, ~ CO2|Month)
@@ -256,7 +250,6 @@ emm.photo.cat <- emmeans(photo.cat.lme, ~ DSW.CAT)
 pairs(emm.photo.cat, adjust = "tukey")
 
 
-
 ######################################################################
 
 #### Intrinsic water use efficiency code
@@ -277,7 +270,6 @@ Anova(COND.PHOTO.FREQ.lme, test.statistic = "F")
 
 # find R^2
 r.squaredGLMM(COND.PHOTO.FREQ.lme)
-
 
 # plot boxcox for iWUE data and transform as necessary
 
